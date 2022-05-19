@@ -1,0 +1,20 @@
+version: "2.1"
+
+services:
+  service-db:
+    container_name: service-db
+    image: postgres:10
+    ports:
+      - 5430:5432
+    environment:
+      - POSTGRES_DB=service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234567
+    command: postgres -c listen_addresses='*'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/service-db:/var/lib/postgresql/data
