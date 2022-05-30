@@ -2,14 +2,75 @@
 
 package model
 
-type NewUser struct {
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type LoginData struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
+type NewFollow struct {
+	FollowerID string `json:"followerID"`
+}
+
+type NewUser struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type User struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	Email     string  `json:"email"`
-	CreatedAt *string `json:"createdAt"`
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	Password        string `json:"password"`
+	Status          Status `json:"status"`
+	Email           string `json:"email"`
+	FollowersAmount int    `json:"followersAmount"`
+	Token           string `json:"token"`
+	CreatedAt       string `json:"createdAt"`
+}
+
+type Status string
+
+const (
+	StatusActive   Status = "ACTIVE"
+	StatusDisabled Status = "DISABLED"
+)
+
+var AllStatus = []Status{
+	StatusActive,
+	StatusDisabled,
+}
+
+func (e Status) IsValid() bool {
+	switch e {
+	case StatusActive, StatusDisabled:
+		return true
+	}
+	return false
+}
+
+func (e Status) String() string {
+	return string(e)
+}
+
+func (e *Status) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Status(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Status", str)
+	}
+	return nil
+}
+
+func (e Status) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

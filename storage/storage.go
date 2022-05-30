@@ -1,43 +1,25 @@
 package storage
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/SKilliu/gogql/graph/model"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-type QInterface interface {
-	DB() *gorm.DB
-
-	UsersQ() UsersQ
+type IStorage interface {
+	GetAll() []*model.User
+	GetByID(id string) (*model.User, error)
+	Create(usr model.NewUser) (*model.User, error)
+	AddFriend(userID, friendID string) (*model.User, error)
 }
 
-type DB struct {
-	db *gorm.DB
+var users IStorage
+var friends map[string][]*model.User
+
+func InitStorage() {
+	initUsers()
+
+	friends = make(map[string][]*model.User)
 }
 
-func (d DB) DB() *gorm.DB {
-	return d.db
-}
-
-func InitConnection() (QInterface, error) {
-	dsn := "host=localhost user=postgres password=1234567 dbname=service port=5430 sslmode=disable TimeZone=Asia/Shanghai"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Printf("failed to connect to DB")
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&model.User{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Successfully connected to DB on localhost:5432")
-
-	return &DB{db: db}, err
+func GetUsersStorage() IStorage {
+	return users
 }
