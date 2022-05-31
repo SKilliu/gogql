@@ -9,12 +9,13 @@ import (
 )
 
 type LoginData struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-type NewFollow struct {
-	FollowerID string `json:"followerID"`
+type NewPost struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
 }
 
 type NewUser struct {
@@ -23,15 +24,25 @@ type NewUser struct {
 	Password string `json:"password"`
 }
 
+type Post struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Content    string `json:"content"`
+	AuthorName string `json:"authorName"`
+	AuthorID   string `json:"authorID"`
+	CreatedAt  string `json:"createdAt"`
+}
+
 type User struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	Password        string `json:"password"`
-	Status          Status `json:"status"`
-	Email           string `json:"email"`
-	FollowersAmount int    `json:"followersAmount"`
-	Token           string `json:"token"`
-	CreatedAt       string `json:"createdAt"`
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	Password        string  `json:"password"`
+	Status          Status  `json:"status"`
+	Email           string  `json:"email"`
+	FollowersAmount int     `json:"followersAmount"`
+	Followers       []*User `json:"followers"`
+	Token           string  `json:"token"`
+	CreatedAt       string  `json:"createdAt"`
 }
 
 type Status string

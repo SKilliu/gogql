@@ -12,7 +12,17 @@ type User {
   status: Status!
   email: String!
   followersAmount: Int!
+  followers: [User!]!
   token: String!
+  createdAt: String!
+}
+
+type Post {
+  id: ID!
+  name: String!
+  content: String!
+  authorName: String!
+  authorID: String!
   createdAt: String!
 }
 
@@ -28,22 +38,23 @@ input NewUser {
 }
 
 input LoginData {
-  name: String!
   email: String!
+  password: String!
 }
 
-input NewFollow {
-  followerID: ID!
+input NewPost {
+  name: String!
+  content: String!
 }
 
 type Query {
   users(id: String, name: String, status: Status): [User!]! @auth
   profile: User! @auth
-  followers(id: String, status: Status): [User!]! @auth
+  posts(id: String, authorID: String): [Post!]! @auth
 }
 
 type Mutation {
-  login(input: NewUser!): User!
+  login(input: LoginData!): User!
   registration(input: NewUser!): User!
-  follow(input: NewFollow!): User! @auth
+  post(input: NewPost!): Post! @auth
 }

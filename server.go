@@ -42,7 +42,11 @@ func main() {
 	)
 
 	gqlConfig := generated.Config{
-		Resolvers: &graph.Resolver{Service: service.NewUserService(storage.GetUsersStorage())}}
+		Resolvers: &graph.Resolver{
+			UserService: service.NewUserService(storage.GetUsersStorage()),
+			PostService: service.NewPostService(storage.GetPostsStorage()),
+		},
+	}
 	gqlConfig.Directives.Auth = directives.Auth
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(gqlConfig))

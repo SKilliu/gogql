@@ -57,6 +57,7 @@ func (u *Users) Create(usr model.NewUser) (*model.User, error) {
 			Password:        tools.HashPassword(usr.Password),
 			Status:          model.StatusActive,
 			Email:           usr.Email,
+			Followers:       make([]*model.User, 0, 1),
 			FollowersAmount: 0,
 			CreatedAt:       time.Now().String(),
 		}
@@ -68,17 +69,11 @@ func (u *Users) Create(usr model.NewUser) (*model.User, error) {
 	return nil, errors.New("user already exists")
 }
 
-func (u *Users) AddFriend(userID, friendID string) (*model.User, error) {
+func (u *Users) GetByEmail(email string) (*model.User, error) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
-	friend, ok := u.storage[friendID]
-	if !ok {
-		return nil, errors.New("user not found")
-	}
-
-	friends[userID] = append(friends[userID], friend)
-	return nil, nil
+	return u.findByEmail(email)
 }
 
 func (u *Users) findByEmail(uemail string) (*model.User, error) {
@@ -91,6 +86,16 @@ func (u *Users) findByEmail(uemail string) (*model.User, error) {
 	return nil, errors.New("user doesn't exist")
 }
 
-func countFriends(uid string) int {
-	return len(friends[uid])
+func (u *Users) Follow(userID, followedID string) (*model.User, error) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	followed, ok := u.storage[followedID]
+	if !ok {
+		return nil, errors.New("user doesn't exist")
+	}
+
+	u.storage[userID].Followers = append(u.storage[userID].Followers, followed)
+	u.storage[userID].FollowersAmount = len(u.storage[userID].Followers)
+
+	return u.GetByID(userID)
 }

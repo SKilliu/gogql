@@ -4,22 +4,33 @@ import (
 	"github.com/SKilliu/gogql/graph/model"
 )
 
-type IStorage interface {
+type IUsers interface {
 	GetAll() []*model.User
 	GetByID(id string) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
 	Create(usr model.NewUser) (*model.User, error)
-	AddFriend(userID, friendID string) (*model.User, error)
+	Follow(userID, followedID string) (*model.User, error)
 }
 
-var users IStorage
-var friends map[string][]*model.User
+type IPosts interface {
+	GetAll(authorID *string, id *string) []*model.Post
+	//GetByID(id string) (*model.Post, error)
+	//GetByName(email string) (*model.Post, error)
+	Create(usr model.NewPost, userID string) (*model.Post, error)
+}
+
+var users IUsers
+var posts IPosts
 
 func InitStorage() {
 	initUsers()
-
-	friends = make(map[string][]*model.User)
+	initPosts()
 }
 
-func GetUsersStorage() IStorage {
+func GetUsersStorage() IUsers {
 	return users
+}
+
+func GetPostsStorage() IPosts {
+	return posts
 }

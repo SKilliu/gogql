@@ -5,55 +5,36 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/SKilliu/gogql/graph/generated"
 	"github.com/SKilliu/gogql/graph/model"
 	"github.com/SKilliu/gogql/middlewares"
-	"github.com/SKilliu/gogql/tools"
-	"github.com/google/uuid"
 )
 
-func (r *mutationResolver) Login(ctx context.Context, input model.NewUser) (*model.User, error) {
-	uid := uuid.New().String()
-	usr := &model.User{
-		ID:              uid,
-		Name:            input.Name,
-		Password:        tools.HashPassword(input.Password),
-		Status:          model.StatusActive,
-		Email:           input.Email,
-		FollowersAmount: 0,
-		CreatedAt:       time.Now().String(),
-	}
-
-	usr, err := r.Service.Login(&input)
-	if err != nil {
-		return nil, err
-	}
-
-	return usr, err
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginData) (*model.User, error) {
+	return r.UserService.Login(input)
 }
 
 func (r *mutationResolver) Registration(ctx context.Context, input model.NewUser) (*model.User, error) {
-	return r.Service.Registration(input)
+	return r.UserService.Registration(input)
 }
 
-func (r *mutationResolver) Follow(ctx context.Context, input model.NewFollow) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) Post(ctx context.Context, input model.NewPost) (*model.Post, error) {
+	jwt := middlewares.CtxValue(ctx)
+	return r.PostService.New(input, jwt.ID)
 }
 
 func (r *queryResolver) Users(ctx context.Context, id *string, name *string, status *model.Status) ([]*model.User, error) {
-	return r.Service.GetAll()
+	return r.UserService.GetAll()
 }
 
 func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	jwt := middlewares.CtxValue(ctx)
-	return r.Service.GetByID(jwt.ID)
+	return r.UserService.GetByID(jwt.ID)
 }
 
-func (r *queryResolver) Followers(ctx context.Context, id *string, status *model.Status) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) Posts(ctx context.Context, id *string, authorID *string) ([]*model.Post, error) {
+	return r.PostService.GetAll(authorID, id)
 }
 
 // Mutation returns generated.MutationResolver implementation.
