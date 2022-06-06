@@ -5,18 +5,36 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/SKilliu/gogql/graph/generated"
 	"github.com/SKilliu/gogql/graph/model"
+	"github.com/SKilliu/gogql/middlewares"
 )
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginData) (*model.User, error) {
+	return r.UserService.Login(input)
 }
 
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) Registration(ctx context.Context, input model.NewUser) (*model.User, error) {
+	return r.UserService.Registration(input)
+}
+
+func (r *mutationResolver) Post(ctx context.Context, input model.NewPost) (*model.Post, error) {
+	jwt := middlewares.CtxValue(ctx)
+	return r.PostService.New(input, jwt.ID)
+}
+
+func (r *queryResolver) Users(ctx context.Context, id *string, name *string, status *model.Status) ([]*model.User, error) {
+	return r.UserService.GetAll()
+}
+
+func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
+	jwt := middlewares.CtxValue(ctx)
+	return r.UserService.GetByID(jwt.ID)
+}
+
+func (r *queryResolver) Posts(ctx context.Context, id *string, authorID *string) ([]*model.Post, error) {
+	return r.PostService.GetAll(authorID, id)
 }
 
 // Mutation returns generated.MutationResolver implementation.

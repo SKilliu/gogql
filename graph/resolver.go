@@ -1,9 +1,16 @@
 package graph
 
+import (
+	"github.com/SKilliu/gogql/service"
+)
+
 // This file will not be regenerated automatically.
 
 //go:generate go run github.com/99designs/gqlgen generate
 
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{}
+type Resolver struct {
+	UserService *service.UserService
+	PostService *service.PostService
+}

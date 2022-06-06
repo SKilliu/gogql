@@ -1,22 +1,36 @@
 package storage
 
 import (
-	"fmt"
-	"log"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/SKilliu/gogql/graph/model"
 )
 
-func InitConnection() error {
-	dsn := "host=localhost user=postgres password=1234567 dbname=service port=5430 sslmode=disable TimeZone=Asia/Shanghai"
-	_, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Printf("failed to connect to DB")
-		return err
-	}
+type IUsers interface {
+	GetAll() []*model.User
+	GetByID(id string) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
+	Create(usr model.NewUser) (*model.User, error)
+	Follow(userID, followedID string) (*model.User, error)
+}
 
-	fmt.Println("Successfully connected to DB on localhost:5432")
+type IPosts interface {
+	GetAll(authorID *string, id *string) []*model.Post
+	//GetByID(id string) (*model.Post, error)
+	//GetByName(email string) (*model.Post, error)
+	Create(usr model.NewPost, userID string) (*model.Post, error)
+}
 
-	return err
+var users IUsers
+var posts IPosts
+
+func InitStorage() {
+	initUsers()
+	initPosts()
+}
+
+func GetUsersStorage() IUsers {
+	return users
+}
+
+func GetPostsStorage() IPosts {
+	return posts
 }

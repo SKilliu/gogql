@@ -1,22 +1,60 @@
 # GraphQL schema
 #
 
+# new directive
+directive @auth on FIELD_DEFINITION
+
 type User {
+  # The ID of the character
   id: ID!
   name: String!
+  password: String!
+  status: Status!
   email: String!
-  createdAt: String
+  followersAmount: Int!
+  followers: [User!]!
+  token: String!
+  createdAt: String!
+}
+
+type Post {
+  id: ID!
+  name: String!
+  content: String!
+  authorName: String!
+  authorID: String!
+  createdAt: String!
+}
+
+enum Status {
+  ACTIVE
+  DISABLED
 }
 
 input NewUser {
   name: String!
   email: String!
+  password: String!
+}
+
+input LoginData {
+  email: String!
+  password: String!
+}
+
+input NewPost {
+  name: String!
+  content: String!
 }
 
 type Query {
-  users: [User!]!
+  users(id: String, name: String, status: Status): [User!]! @auth
+  profile: User! @auth
+  posts(id: String, authorID: String): [Post!]! @auth
 }
 
 type Mutation {
-  createUser(input: NewUser!): User!
+  login(input: LoginData!): User!
+  registration(input: NewUser!): User!
+  post(input: NewPost!): Post! @auth
 }
